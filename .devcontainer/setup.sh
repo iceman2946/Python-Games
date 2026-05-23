@@ -1,14 +1,40 @@
 #!/bin/bash
+set -euxo pipefail
 
-pip3 install --upgrade pip
-pip3 install  -r requirements.txt
+TARGET_DIR=$1
+THIS_DIR=$(dirname "$(realpath "$0")")
+VENV_DIR="$TARGET_DIR/.venv"
+PREFERRED_PYTHON="/usr/local/bin/python"
+FALLBACK_PYTHON="/usr/bin/python3"
 
-git config --global pull.rebase true
+echo "❖❖❖❖❖❖❖❖❖❖❖❖❖❖❖❖❖❖❖"
+echo "TARGET_DIR: $TARGET_DIR"
+echo "THIS_DIR: $THIS_DIR"
 
-echo "export PYTHONPATH=$(pwd)/.lib/:$PYTHONPATH" >> ~/.zshrc
-echo "export PYTHONPATH=$(pwd)/.lib/:$PYTHONPATH" >> ~/.bashrc
-echo "export PYTHONPATH=$(pwd)/.lib/:$PYTHONPATH" >> ~/.profile
+if [ -x "$PREFERRED_PYTHON" ]; then
+	BASE_PYTHON="$PREFERRED_PYTHON"
+elif [ -x "$FALLBACK_PYTHON" ]; then
+	BASE_PYTHON="$FALLBACK_PYTHON"
+else
+	echo "No Python interpreter found for virtual environment setup." >&2
+	exit 1
+fi
 
-source ~/.bashrc
+cd "$TARGET_DIR"
 
+"$BASE_PYTHON" -m venv "$VENV_DIR"
+"$VENV_DIR/bin/python" -m pip install --upgrade pip
+"$VENV_DIR/bin/python" -m pip install -r requirements.txt
+
+append_if_missing() {
+	local line="$1"
+	local file="$2"
+
+	if ! grep -Fqx "$line" "$file"; then
+		echo "$line" >> "$file"
+	fi
+}
+
+append_if_missing "export PYTHONPATH=$TARGET_DIR/.lib:\${PYTHONPATH:-}" "$HOME/.bashrc"
+append_if_missing "if [ -f \"$VENV_DIR/bin/activate\" ]; then . \"$VENV_DIR/bin/activate\"; fi" "$HOME/.bashrc"
 

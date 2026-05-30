@@ -52,7 +52,7 @@ is_jumping = False
 # Main game loop
 running = True
 clock = pygame.time.Clock()
-
+d_v_y=0 
 while running:
 
     # Handle events, such as quitting the game
@@ -62,11 +62,18 @@ while running:
 
     # Continuously jump. If the player is not jumping, initialize a new jump
     if is_jumping is False:
+        keys = pygame.key.get_pressed()
         # Jumping means that the player is going up. The top of the 
         # screen is y=0, and the bottom is y=SCREEN_HEIGHT. So, to go up,
         # we need to have a negative y velocity
-        d_v_y = -settings.jump_velocity
-        is_jumping = True
+        if keys[pygame.K_SPACE] and keys[pygame.K_LSHIFT]:
+            print("Jump")
+            is_jumping = True
+            #jump_velocity+=150
+            d_v_y= -settings.jump_velocity - 1000
+        if keys[pygame.K_SPACE]:
+            is_jumping = True
+            d_v_y = -settings.jump_velocity
 
     # acelleration in sht y direction
     a_y = settings.gravity
@@ -87,7 +94,8 @@ while running:
     # and stop the player from falling
     if player.bottom >= settings.screen_height:
         player.bottom = settings.screen_height 
-        d_v_y = 0
+        jump_velocity = 200; 
+        d_v_y = 0 
         is_jumping = False
 
     # Draw everything

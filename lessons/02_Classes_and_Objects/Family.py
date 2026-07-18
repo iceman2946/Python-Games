@@ -24,6 +24,7 @@ class Parent(Person):
         # Set our spose but also set the spouse's spouse to us
         if spouse:
             self.spouse = spouse
+            self.last_name=last_name
             spouse.spouse = self
         
         self.spouse = None

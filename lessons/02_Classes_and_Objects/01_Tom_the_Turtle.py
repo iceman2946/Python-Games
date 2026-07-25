@@ -75,7 +75,9 @@ class Derived_Turtle(Turtle):
     def backwards(self,distance):
         super().forward(self.distance,distance)
     def set_color(self,color:str):
-        self.color=color; 
+        Turtle.set_color(color)
+def getPosition(Turtle,x:int,y:int):
+    print("(",x,y ,")")
 # Main loop
 
 # Initialize Pygame
@@ -91,12 +93,17 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 
 screen.fill(white)
-turtle = Turtle(screen, screen.get_width() // 2, screen.get_height() // 2)  # Start at the center of the screen
+turtle = Turtle(screen, screen.get_width() // 2, screen.get_height() // 2)
+altTurtle = Derived_Turtle(turtle)
+altTurtle.set_color("red")
+  # Start at the center of the screen
 
 # Draw a square using turtle-style commands
 for _ in range(4):
+    turtle.pen_down()
     turtle.forward(100)  # Move forward by 100 pixels
-    turtle.left(90)  # Turn left by 90 degrees
+    turtle.left(90)
+    turtle.pen_up()  # Turn left by 90 degrees
 
 # Display the drawing
 pygame.display.flip()

@@ -23,7 +23,7 @@ Player class!), of different colors, bouncing around in different trajectories.
 import pygame
 
 
-class Colors:
+class Colors():
     """Constants for Colors"""
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -93,7 +93,7 @@ class Game:
 class Player:
     """Player class, just a bouncing rectangle"""
 
-    def __init__(self, game: Game):
+    def __init__(self, game: Game,x:int,y:int,v_x:int,v_y,color:tuple):
         self.game = game
         settings = game.settings
 
@@ -103,11 +103,13 @@ class Player:
         self.is_jumping = False
         self.v_jump = settings.jump_v_y
 
-        self.y = settings.player_start_y if settings.player_start_y is not None else settings.height - self.height
-        self.x = settings.player_start_x
+        self.y = y #settings.player_start_y if settings.player_start_y is not None else settings.height - self.height
+        self.x = x #settings.player_start_x
         
-        self.v_x = settings.v_0_x  # X Velocity
-        self.v_y = settings.v_0_y  # Y Velocity
+        self.v_x = v_x#settings.v_0_x  # X Velocity
+        self.v_y = v_y#settings.v_0_y  # Y Velocity
+
+        self.color = color
 
     def update(self):
         """Update player position, continuously jumping"""
@@ -150,7 +152,22 @@ class Player:
 settings = GameSettings()
 game = Game(settings)
 
-p1 = Player(game)
+p1 = Player(
+    game,
+    settings.player_start_x,
+    settings.player_start_y,
+    settings.v_0_x,
+    settings.v_0_y,
+    (255,0,0)
+    )
+p2 = Player(
+    game,
+    settings.player_start_x+30,
+    settings.player_start_y,
+    settings.v_0_x+30,
+    settings.v_0_y+30,
+    (0,0,0)
+)
 game.add_player(p1)
 
 

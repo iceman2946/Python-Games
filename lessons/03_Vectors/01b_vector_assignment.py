@@ -3,6 +3,7 @@ print(sys.executable)
 import pygame
 import math
 
+
 from jtlgames.vector20 import Vector20Factory
 
 # Initialize pygame
@@ -19,18 +20,20 @@ Vector20, draw_v20, draw_grid = Vector20Factory(screen_width, screen_height, 20)
 draw_grid(screen)
 
 # Create some vectors
-v0 = Vector20(0,0)
-v1= Vector20(1,1)
-v2 = Vector20(3, -12)  
-v3 = Vector20(-4, -2)  
-v4 = Vector20(-12, 0) 
-v5 = Vector20(0, 12)
+v0 = Vector20(5,5)
+v1 = Vector20(0,1)
+v1_rotated = v1.rotate(90)*10
+v2= v1_rotated.rotate(90)
+v3 = v2.rotate(90)
+v4 = v3.rotate(90)
 
-start = draw_v20(screen, v0, v1)
-start = draw_v20(screen, start, v2)
-start = draw_v20(screen, start, v3)
-start = draw_v20(screen, start, v4)
-start = draw_v20(screen, start, v5)
+
+start = draw_v20(screen,v0, v1_rotated)
+started = draw_v20(screen,start,v2)
+starts = draw_v20(screen,started,v3)
+star = draw_v20(screen,starts,v4)
+
+
 
 # Update display
 pygame.display.flip()

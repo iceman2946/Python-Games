@@ -91,7 +91,7 @@ class Player:
         
         # Player's velocity
         self.vel = pygame.Vector2(settings.player_v_x, settings.player_v_y)  # Velocity vector
-
+        self.drag = -(self.vel) * 0.1; 
 
 
     # Direction functions. IMPORTANT! Using these functions isn't really
@@ -151,7 +151,8 @@ class Player:
             self.vel.y = 0
 
         if self.at_top() and self.going_up():
-            self.vel.y = -self.vel.y # Bounce off the top. 
+            self.vel.y = self.drag
+             # Bounce off the top. 
 
         # If the player hits one side of the screen or the other, bounce the
         # player. we are also checking if the player has a velocity going farther

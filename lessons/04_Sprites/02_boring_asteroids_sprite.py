@@ -32,6 +32,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.angle = 0
         self.original_image = self.create_spaceship_image()
 
+        self.position = pygame.Vector2(0,0)
         self.velocity = pygame.Vector2(0, 0)
 
         # For Sprites, the image and rect attributes are part of the Sprite class
@@ -86,7 +87,10 @@ class Spaceship(pygame.sprite.Sprite):
     def update(self):
         
         keys = pygame.key.get_pressed()
-
+        if keys [pygame.K_UP]:
+            self.velocity += pygame.Vector2()
+        if keys [pygame.K_DOWN]:
+            self.velocity += pygame.Vector2()
         if keys[pygame.K_LEFT]:
             self.angle -= 5
 

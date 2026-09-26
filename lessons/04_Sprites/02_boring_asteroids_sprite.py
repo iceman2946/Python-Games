@@ -32,7 +32,7 @@ class Spaceship(pygame.sprite.Sprite):
         self.angle = 0
         self.original_image = self.create_spaceship_image()
 
-        self.position = pygame.Vector2(0,0)
+        self.position = position
         self.velocity = pygame.Vector2(0, 0)
 
         # For Sprites, the image and rect attributes are part of the Sprite class
@@ -88,12 +88,11 @@ class Spaceship(pygame.sprite.Sprite):
         
         keys = pygame.key.get_pressed()
         if keys [pygame.K_UP]:
-            self.velocity += pygame.Vector2()
+            self.velocity += pygame.Vector2(0,-1)
         if keys [pygame.K_DOWN]:
-            self.velocity += pygame.Vector2()
+            self.velocity += pygame.Vector2(0,1)
         if keys[pygame.K_LEFT]:
             self.angle -= 5
-
         if keys[pygame.K_RIGHT]:
             self.angle += 5
 
@@ -106,6 +105,15 @@ class Spaceship(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.rect.center)
         
         self.rect.center += self.velocity
+        drag = self.velocity.length()
+        if (abs(drag)>0):
+            self.velocity *= 0.95
+        #     self.velocity += pygame.Vector2(0,0.5)
+        #     drag = self.velocity.length()
+        #     if drag < 0:
+        #         self.velocity = pygame.Vector2(0,0)
+        #     if drag > 0:
+        #         self.velocity = pygame.Vector2(0,0)
 
         # Dont forget this part! If you don't call the Sprite update method, the
         # sprite will not be drawn

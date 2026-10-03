@@ -1,7 +1,7 @@
 import pygame
 import math
-
-
+from pathlib import Path
+assets = Path(__file__).parent / "images"
 class Settings:
     """Class to store game configuration."""
 
@@ -53,7 +53,7 @@ class Spaceship(pygame.sprite.Sprite):
             (0, self.settings.triangle_size * 2),  # left side point
             (self.settings.triangle_size * 2,self.settings.triangle_size * 2, ),  # right side point
         ]
-        pygame.draw.polygon(image, self.settings.colors["white"], points)
+        #pygame.draw.polygon(image, self.settings.colors["white"], points)
         return image
 
     def ready_to_shoot(self):
@@ -123,8 +123,9 @@ class Spaceship(pygame.sprite.Sprite):
     # Sprite class already has a draw method that will draw the image on the
     # screen. We only need to add the sprite to a group and the group will take
     # care of drawing the sprite.
-
-        
+class AlienSpaceship(Spaceship):
+    def create_spaceship_image(self):
+        return pygame.image.load(assets/'alien1.gif')
 
 class Projectile(pygame.sprite.Sprite):
     """Class to handle projectile movement and drawing."""
@@ -229,7 +230,7 @@ if __name__ == "__main__":
 
     game = Game(settings)
 
-    spaceship = Spaceship(
+    spaceship = AlienSpaceship(
         settings, position=(settings.width // 2, settings.height // 2)
     )
 

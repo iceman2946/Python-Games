@@ -16,27 +16,28 @@ pygame.init()
 images_dir = Path(__file__).parent / "images" if (Path(__file__).parent / "images").exists() else Path(__file__).parent / "assets"
 
 # Screen dimensions
-WIDTH, HEIGHT = 600, 300
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Dino Jump")
+class Settings: 
+    WIDTH, HEIGHT = 600, 300
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Dino Jump")
 
-# Colors
-BLUE = (0, 0, 255)
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
+    # Colors
+    BLUE = (0, 0, 255)
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
 
-# FPS
-FPS = 60
+    # FPS
+    FPS = 60
 
-# Player attributes
-PLAYER_SIZE = 25
+    # Player attributes
+    PLAYER_SIZE = 25
 
-player_speed = 5
+    player_speed = 5
 
-# Obstacle attributes
-OBSTACLE_WIDTH = 20
-OBSTACLE_HEIGHT = 20
-obstacle_speed = 5
+    # Obstacle attributes
+    OBSTACLE_WIDTH = 20
+    OBSTACLE_HEIGHT = 20
+    obstacle_speed = 5
 
 # Font
 font = pygame.font.SysFont(None, 36)
@@ -46,16 +47,16 @@ font = pygame.font.SysFont(None, 36)
 class Obstacle(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.Surface((OBSTACLE_WIDTH, OBSTACLE_HEIGHT))
-        self.image.fill(BLACK)
+        self.image = pygame.Surface((Settings.OBSTACLE_WIDTH, Settings.OBSTACLE_HEIGHT))
+        self.image.fill(Settings.BLACK)
         self.rect = self.image.get_rect()
-        self.rect.x = WIDTH
-        self.rect.y = HEIGHT - OBSTACLE_HEIGHT - 10
+        self.rect.x = Settings.WIDTH
+        self.rect.y = Settings.HEIGHT - Settings.OBSTACLE_HEIGHT - 10
 
         self.explosion = pygame.image.load(images_dir / "explosion1.gif")
 
     def update(self):
-        self.rect.x -= obstacle_speed
+        self.rect.x -= Settings.obstacle_speed
         # Remove the obstacle if it goes off screen
         if self.rect.right < 0:
             self.kill()
@@ -65,7 +66,7 @@ class Obstacle(pygame.sprite.Sprite):
         
         # Load the explosion image
         self.image = self.explosion
-        self.image = pygame.transform.scale(self.image, (OBSTACLE_WIDTH, OBSTACLE_HEIGHT))
+        self.image = pygame.transform.scale(self.image, (Settings.OBSTACLE_WIDTH, Settings.OBSTACLE_HEIGHT))
         self.rect = self.image.get_rect(center=self.rect.center)
 
 
@@ -73,25 +74,41 @@ class Obstacle(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image = pygame.Surface((PLAYER_SIZE, PLAYER_SIZE))
-        self.image.fill(BLUE)
+        self.image = pygame.Surface((Settings.PLAYER_SIZE, Settings.PLAYER_SIZE))
+        self.image.fill(Settings.BLUE)
         self.rect = self.image.get_rect()
         self.rect.x = 50
-        self.rect.y = HEIGHT - PLAYER_SIZE - 10
-        self.speed = player_speed
+        self.rect.y = Settings.HEIGHT - Settings.PLAYER_SIZE - 10
+        self.speed = Settings.player_speed
+        self.jump_velocity = 0
+        self.space_was_down = False
+        self.score = 0 
+        self.hitbyObstacle= False
 
     def update(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP]:
-            self.rect.y -= self.speed
-        if keys[pygame.K_DOWN]:
-            self.rect.y += self.speed
+        floor_y = Settings.HEIGHT - 10
+        space_down = keys[pygame.K_SPACE]
 
+        if space_down and not self.space_was_down and self.rect.bottom == floor_y:
+            self.jump_velocity = -12
+
+        self.space_was_down = space_down
+        self.jump_velocity += 1
+        self.rect.y += self.jump_velocity
+
+        if self.rect.bottom >= floor_y:
+            self.rect.bottom = floor_y
+            self.jump_velocity = 0
+        if self.rect.top != Obstacle.__init__.rect.top & self.rect.bottom != Obstacle.__init__.rect.bottom:
+            score +=1
+        else:
+            score-=1
         # Keep the player on screen
         if self.rect.top < 0:
             self.rect.top = 0
-        if self.rect.bottom > HEIGHT:
-            self.rect.bottom = HEIGHT
+        if self.rect.bottom > Settings.HEIGHT:
+            self.rect.bottom = Settings.HEIGHT
 
 # Create a player object
 player = Player()
@@ -114,53 +131,57 @@ def add_obstacle(obstacles):
 
 
 # Main game loop
-def game_loop():
-    clock = pygame.time.Clock()
-    game_over = False
-    last_obstacle_time = pygame.time.get_ticks()
+class Game: 
+    def game_loop():
+        clock = pygame.time.Clock()
+        game_over = False
+        last_obstacle_time = pygame.time.get_ticks()
 
-    # Group for obstacles
-    obstacles = pygame.sprite.Group()
+        # Group for obstacles
+        obstacles = pygame.sprite.Group()
 
-    player = Player()
+        player = Player()
 
-    obstacle_count = 0
+        obstacle_count = 0
 
-    while not game_over:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+        while not game_over:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
 
-        # Update player
-        player.update()
+            # Update player
+            player.update()
 
-        # Add obstacles and update
-        if pygame.time.get_ticks() - last_obstacle_time > 500:
-            last_obstacle_time = pygame.time.get_ticks()
-            obstacle_count += add_obstacle(obstacles)
+            # Add obstacles and update
+            if pygame.time.get_ticks() - last_obstacle_time > 500:
+                last_obstacle_time = pygame.time.get_ticks()
+                obstacle_count += add_obstacle(obstacles)
+            
+            obstacles.update()
+
+            # Check for collisions
+            collider = pygame.sprite.spritecollide(player, obstacles, dokill=False)
+            if collider:
+                collider[0].explode()
         
-        obstacles.update()
+            # Draw everything
+            Settings.screen.fill(Settings.WHITE)
+            pygame.draw.rect(Settings.screen, Settings.BLUE, player)
+            obstacles.draw(Settings.screen)
 
-        # Check for collisions
-        collider = pygame.sprite.spritecollide(player, obstacles, dokill=False)
-        if collider:
-            collider[0].explode()
-       
-        # Draw everything
-        screen.fill(WHITE)
-        pygame.draw.rect(screen, BLUE, player)
-        obstacles.draw(screen)
+            # Display obstacle count
+            obstacle_text = font.render(f"Obstacles: {obstacle_count}", True, Settings.BLACK)
+            score_text = font.render(f"Score: {player.score}", True, Settings.BLACK)
+            Settings.screen.blit(obstacle_text, (10, 10))
+            Settings.screen.blit(score_text, (10,40))
 
-        # Display obstacle count
-        obstacle_text = font.render(f"Obstacles: {obstacle_count}", True, BLACK)
-        screen.blit(obstacle_text, (10, 10))
-
-        pygame.display.update()
-        clock.tick(FPS)
+            pygame.display.update()
+            clock.tick(Settings.FPS)
 
     # Game over screen
-    screen.fill(WHITE)
+    Settings.screen.fill(Settings.WHITE)
 
 if __name__ == "__main__":
-    game_loop()
+    Game.game_loop()
+"Work on score in 2 wks"

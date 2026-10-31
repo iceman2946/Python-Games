@@ -45,15 +45,18 @@ font = pygame.font.SysFont(None, 36)
 
 # Define an obstacle class
 class Obstacle(pygame.sprite.Sprite):
-    def __init__(self):
+    exploded = False
+    def __init__(self, player):
         super().__init__()
         self.image = pygame.Surface((Settings.OBSTACLE_WIDTH, Settings.OBSTACLE_HEIGHT))
         self.image.fill(Settings.BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = Settings.WIDTH
         self.rect.y = Settings.HEIGHT - Settings.OBSTACLE_HEIGHT - 10
-
+        self.player = player
         self.explosion = pygame.image.load(images_dir / "explosion1.gif")
+
+
 
     def update(self):
         self.rect.x -= Settings.obstacle_speed
@@ -64,10 +67,13 @@ class Obstacle(pygame.sprite.Sprite):
     def explode(self):
         """Replace the image with an explosition image."""
         
-        # Load the explosion image
-        self.image = self.explosion
+        # Load the explosion image.    
+        
+        self.image = self.explosion 
         self.image = pygame.transform.scale(self.image, (Settings.OBSTACLE_WIDTH, Settings.OBSTACLE_HEIGHT))
         self.rect = self.image.get_rect(center=self.rect.center)
+        self.exploded = True
+
 
 
 # Define a player class
@@ -82,8 +88,8 @@ class Player(pygame.sprite.Sprite):
         self.speed = Settings.player_speed
         self.jump_velocity = 0
         self.space_was_down = False
-        self.score = 0 
         self.hitbyObstacle= False
+        self.score = 0
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -100,22 +106,19 @@ class Player(pygame.sprite.Sprite):
         if self.rect.bottom >= floor_y:
             self.rect.bottom = floor_y
             self.jump_velocity = 0
-        if self.rect.top != Obstacle.__init__.rect.top & self.rect.bottom != Obstacle.__init__.rect.bottom:
-            score +=1
-        else:
-            score-=1
         # Keep the player on screen
         if self.rect.top < 0:
             self.rect.top = 0
         if self.rect.bottom > Settings.HEIGHT:
             self.rect.bottom = Settings.HEIGHT
 
+
 # Create a player object
 player = Player()
 player_group = pygame.sprite.GroupSingle(player)
 
 # Add obstacles periodically
-def add_obstacle(obstacles):
+def add_obstacle(obstacles ):
     # random.random() returns a random float between 0 and 1, so a value
     # of 0.25 means that there is a 25% chance of adding an obstacle. Since
     # add_obstacle() is called every 100ms, this means that on average, an
@@ -124,7 +127,7 @@ def add_obstacle(obstacles):
     # obstacles, but not too close together. 
     
     if random.random() < 0.4:
-        obstacle = Obstacle()
+        obstacle = Obstacle(player)
         obstacles.add(obstacle)
         return 1
     return 0
@@ -140,10 +143,9 @@ class Game:
         # Group for obstacles
         obstacles = pygame.sprite.Group()
 
-        player = Player()
 
         obstacle_count = 0
-
+        was_colliding = False
         while not game_over:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -162,8 +164,16 @@ class Game:
 
             # Check for collisions
             collider = pygame.sprite.spritecollide(player, obstacles, dokill=False)
-            if collider:
-                collider[0].explode()
+            is_colliding = bool(collider)
+            if is_colliding and not was_colliding:
+                player.score-=1
+                if collider: 
+                    collider[0].explode()
+            elif not is_colliding and was_colliding:
+                player.score +=1
+            was_colliding = is_colliding
+
+
         
             # Draw everything
             Settings.screen.fill(Settings.WHITE)
@@ -184,4 +194,3 @@ class Game:
 
 if __name__ == "__main__":
     Game.game_loop()
-"Work on score in 2 wks"

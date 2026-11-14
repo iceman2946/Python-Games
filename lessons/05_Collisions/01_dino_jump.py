@@ -36,7 +36,7 @@ class Settings:
 
     # Obstacle attributes
     OBSTACLE_WIDTH = 20
-    OBSTACLE_HEIGHT = 20
+    OBSTACLE_HEIGHT = 40
     obstacle_speed = 5
 
 # Font
@@ -98,6 +98,7 @@ class Player(pygame.sprite.Sprite):
         self.space_was_down = False
         self.hitbyObstacle= False
         self.score = 0
+        
 
     def update(self):
         keys = pygame.key.get_pressed()
@@ -145,6 +146,7 @@ def add_obstacle(obstacles):
 class Game:
     def __init__(self):
         self.restart_button = pygame.Rect(220, 170, 160, 50)
+        self.high_score = 0
 
     def reset(self):
         global player
@@ -165,7 +167,7 @@ class Game:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     return
-
+                self.high_score = max(self.high_score, player.score)
                 if game_over:
                     if event.type == pygame.MOUSEBUTTONDOWN and self.restart_button.collidepoint(event.pos):
                         self.reset()
@@ -205,6 +207,7 @@ class Game:
 
             # Draw everything
             Settings.screen.fill(Settings.WHITE)
+            pygame.draw.line(Settings.screen,Settings.BLACK,(0, Settings.HEIGHT - 10),(Settings.WIDTH, Settings.HEIGHT - 10),2,)
             Settings.screen.blit(player.image, player.rect)
             obstacles.draw(Settings.screen)
 
@@ -215,8 +218,12 @@ class Game:
                 Settings.screen.blit(score_text, (10,40))
             else:
                 gameDone_text = font.render("GAME OVER", True, Settings.BLACK)
-                Settings.screen.blit(gameDone_text, (220, 120))
+                Settings.screen.blit(gameDone_text, (220, 100))
                 pygame.draw.rect(Settings.screen, Settings.BLUE, self.restart_button)
+                score_text= font.render(f"Score: {player.score}", True, Settings.BLACK)
+                Settings.screen.blit(score_text,(240,140))
+                high_score_text = font.render(f"High Score: {self.high_score}", True, Settings.BLACK)
+                Settings.screen.blit(high_score_text, (10, 10))
                 restart_text = font.render("Restart", True, Settings.WHITE)
                 Settings.screen.blit(restart_text, (self.restart_button.x + 30, self.restart_button.y + 10))
 

@@ -52,7 +52,10 @@ class Obstacle(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(self.image,(Settings.OBSTACLE_WIDTH,Settings.OBSTACLE_HEIGHT))
         self.rect = self.image.get_rect()
         self.rect.x = Settings.WIDTH
-        self.rect.y = Settings.HEIGHT - Settings.OBSTACLE_HEIGHT - 10
+        min_y = 20
+        max_y = Settings.HEIGHT - Settings.PLAYER_SIZE - 10
+        self.rect.y = random.randint(min_y,max_y)
+        self.vertical_speed = random.choice([-2,2])
         self.player = player
         self.explosion = pygame.image.load(images_dir / "explosion1.gif")
        
@@ -63,7 +66,13 @@ class Obstacle(pygame.sprite.Sprite):
         # Remove the obstacle if it goes off screen
         if self.exploded :
             return
-        
+        self.rect.y += self.vertical_speed
+        if self.rect.top < 20:
+            self.rect.top = 20
+        elif self.rect.bottom > Settings.HEIGHT - 10:
+            self.rect.bottom = Settings.HEIGHT - 10
+            self.vertical_speed = -abs(self.vertical_speed)
+
         if self.rect.right < 0:
             self.kill()
             player.score +=1
@@ -88,13 +97,13 @@ class Obstacle(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.image =pygame.image.load(images_dir/"dino_0.png")
+        self.image =pygame.image.load(images_dir/"spaceship.png")
         self.image = pygame.transform.scale(self.image,(Settings.PLAYER_SIZE,Settings.PLAYER_SIZE))
         self.rect = self.image.get_rect()
         self.rect.x = 50
         self.rect.y = Settings.HEIGHT - Settings.PLAYER_SIZE - 10
         self.speed = Settings.player_speed
-        self.jump_velocity = 0
+        self.jump_velocity = 0.0
         self.space_was_down = False
         self.hitbyObstacle= False
         self.score = 0
@@ -105,8 +114,8 @@ class Player(pygame.sprite.Sprite):
         floor_y = Settings.HEIGHT - 10
         space_down = keys[pygame.K_SPACE]
 
-        if space_down and not self.space_was_down and self.rect.bottom == floor_y:
-            self.jump_velocity = -12
+        if space_down:
+            self.jump_velocity -= ( 120 / Settings.FPS)
 
         self.space_was_down = space_down
         self.jump_velocity += 1
@@ -120,6 +129,8 @@ class Player(pygame.sprite.Sprite):
             self.rect.top = 0
         if self.rect.bottom > Settings.HEIGHT:
             self.rect.bottom = Settings.HEIGHT
+       # if self.rect.bottom > Settings.HE
+            
 
 
 # Create a player object
